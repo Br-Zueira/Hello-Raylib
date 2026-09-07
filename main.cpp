@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <cmath>
+#include <iostream>
 
 int main() {
     // Creates a brand new window
@@ -21,7 +22,6 @@ int main() {
     Vector2 dot1 = {vw / 2.0f, vy / 3.0f};
     Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
     Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
-    Color red = {255, 0, 0, 255};
 
     // Setting up some text to render
     Font stdfont = GetFontDefault(); // Standard Raylib font
@@ -32,15 +32,36 @@ int main() {
     float textPosY = dot1.y + height + fontSize; // Text right below the triangle
     Color black = {0, 0, 0, 255};
 
+    // Mutable color channel for triangle
+    int redChannel = 0;
+
+    // Amount per second to change the red channel
+    float shiftPerSec = 200;
+
     // Project Loop
     while (!WindowShouldClose()) {
+        float dt = GetFrameTime();
+
+        // Dynamic color
+        if (IsKeyDown(KEY_A)) { redChannel-= shiftPerSec*dt; } 
+        else if (IsKeyDown(KEY_D)) { redChannel+= shiftPerSec*dt; }
+        
+        // Variable wrapping
+        if (redChannel > 255) { redChannel = 255; }
+        else if (redChannel < 0) { redChannel = 0; }
+
+        // Dynamic color for triangle
+        Color triangleColor = {redChannel, 0, 0, 255};
+
         BeginDrawing();
+
         ClearBackground(white);
-        DrawTriangle(dot1, dot2, dot3, red);
+        DrawTriangle(dot1, dot2, dot3, triangleColor);
         DrawText(motto, textPosX, textPosY, fontSize, black);
+
         EndDrawing();
     }
-
+ 
     // Properly finishes session
     CloseWindow();
     return 0;
