@@ -10,6 +10,9 @@ int main() {
     InitWindow(vw, vy, "Hello Raylib");
     SetTargetFPS(60);
 
+    // Disable the exit key (so ESC is free for me to use :) )
+    SetExitKey(KEY_NULL);
+
     // Settings for rendering a triangle
     float sideSize = 200.0f;
 
@@ -31,9 +34,18 @@ int main() {
 
     // Amount per second to change the red channel
     float shiftPerSec = 200.0f;
-    
+
     // Project Loop
     while (!WindowShouldClose()) {
+        // Toggles cursor (Enter locks it and Esc unlocks it)
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            EnableCursor();
+        }
+        if (IsKeyPressed(KEY_ENTER)) {
+            DisableCursor();
+        }
+
+        // Some useful variables :)
         vw = GetScreenWidth();
         vy = GetScreenHeight();
         float dt = GetFrameTime();
