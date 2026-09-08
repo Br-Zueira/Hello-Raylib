@@ -74,10 +74,6 @@ int main() {
         DrawText(motto, 10, 10, fontSize, white); // Draws text at top-left with a margin of 10px
 
         EndDrawing();
-        std::cout << "X CAM: " << camera.position.x << " TRI: " << dot1.x << "\n";
-        std::cout << "Z CAM: " << camera.position.z << " TRI: " << dot1.z << "\n";
-        std::cout << "X ORI: " << camera.target.x << "\n";
-        std::cout << "Z ORI: " << camera.target.z << "\n";
     }
  
 
