@@ -6,6 +6,7 @@ int main() {
     // Creates a brand new window
     int vw = 800;
     int vy = 450;
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(vw, vy, "Hello Raylib");
     SetTargetFPS(60);
 
@@ -18,18 +19,11 @@ int main() {
     // Setting up a color for background (white)
     Color white = {255, 255, 255, 0};
 
-    // Setting up each vertex of the triangle (centralized and equilateral)
-    Vector2 dot1 = {vw / 2.0f, vy / 3.0f};
-    Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
-    Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
-
     // Setting up some text to render
     Font stdfont = GetFontDefault(); // Standard Raylib font
     const char *motto = "Libertas quæ sera tamen"; // Minas Gerais flag moto ("Freedom, even if late")
     int fontSize = 20; // Arbitrary font size
     float textWidth = MeasureText(motto, fontSize); // Width of text, used to centralize the text
-    float textPosX = dot1.x - textWidth/2; // Centered text
-    float textPosY = dot1.y + height + fontSize; // Text right below the triangle
     Color black = {0, 0, 0, 255};
 
     // Mutable color channel for triangle
@@ -37,10 +31,21 @@ int main() {
 
     // Amount per second to change the red channel
     float shiftPerSec = 200;
-
+    
     // Project Loop
     while (!WindowShouldClose()) {
+        vw = GetScreenWidth();
+        vy = GetScreenHeight();
         float dt = GetFrameTime();
+
+        // Setting up each vertex of the triangle (centralized and equilateral)
+        Vector2 dot1 = {vw / 2.0f, vy / 3.0f};
+        Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
+        Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
+
+        // Text coordinates
+        float textPosX = dot1.x - textWidth/2; // Centered text
+        float textPosY = dot1.y + height + fontSize; // Text right below the triangle
 
         // Dynamic color
         if (IsKeyDown(KEY_A)) { redChannel-= shiftPerSec*dt; } 
@@ -52,6 +57,11 @@ int main() {
 
         // Dynamic color for triangle
         Color triangleColor = {redChannel, 0, 0, 255};
+
+        // If triangle is being pressed, glow in green too
+        if (CheckCollisionPointTriangle(GetMousePosition(), dot1, dot2, dot3) and IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            triangleColor.g = 255;
+        }
 
         BeginDrawing();
 
