@@ -14,7 +14,7 @@ int main() {
     SetExitKey(KEY_NULL);
 
     // Settings for rendering a triangle
-    float sideSize = 200.0f;
+    float sideSize = 8.0f;
 
     // Trigonometry nerdy moment: sqrt(3)/2 is tangent of 30°, this is used to make the triangle equilateral
     float height = sideSize * (sqrt(3.0f) / 2.0f);
@@ -29,6 +29,14 @@ int main() {
     float textWidth = MeasureText(motto, fontSize); // Width of text, used to centralize the text
     Color black = {0, 0, 0, 255};
 
+    // Creating a new camera
+    Camera3D camera = {0};
+    camera.position = (Vector3){0.0f, 2.0f, 4.0f};
+    camera.target = (Vector3){0.0f, 2.0f, 0.0f};
+    camera.up = (Vector3){0.0f, 1.0f, 0.0f};
+    camera.fovy = 60.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
+
     // Project Loop
     while (!WindowShouldClose()) {
         // Toggles cursor (Enter locks it and Esc unlocks it)
@@ -39,31 +47,40 @@ int main() {
             DisableCursor();
         }
 
-        // Some useful variables :)
-        vw = GetScreenWidth();
-        vy = GetScreenHeight();
+        // Delta time (useful for physics)
         float dt = GetFrameTime();
 
-        // Setting up each vertex of the triangle (centralized and equilateral)
-        Vector2 dot1 = {vw / 2.0f, vy / 3.0f};
-        Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
-        Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
+        // Updates camera rotation and position
+        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+
+        // Setting up each vertex of the triangle
+        Vector3 dot1 = {0.0f, height, 0.0f};
+        Vector3 dot2 = {dot1.x - sideSize/2.0f, dot1.y - height, dot1.z};
+        Vector3 dot3 = {dot1.x + sideSize/2.0f, dot1.y - height, dot1.z};
 
         // Dynamic color based on sine waves
         unsigned char channel = 255*((sinf(GetTime())+1)/2);
-
-        // Dynamic color for triangle
         Color triangleColor = {255, channel, channel, 255};
 
         BeginDrawing();
 
         ClearBackground(black);
-        DrawTriangle(dot1, dot2, dot3, triangleColor);
+
+        BeginMode3D(camera);
+        DrawGrid(100, 5);
+        DrawTriangle3D(dot1, dot2, dot3, triangleColor);
+        EndMode3D();
+
         DrawText(motto, 10, 10, fontSize, white); // Draws text at top-left with a margin of 10px
 
         EndDrawing();
+        std::cout << "X CAM: " << camera.position.x << " TRI: " << dot1.x << "\n";
+        std::cout << "Z CAM: " << camera.position.z << " TRI: " << dot1.z << "\n";
+        std::cout << "X ORI: " << camera.target.x << "\n";
+        std::cout << "Z ORI: " << camera.target.z << "\n";
     }
  
+
     // Properly finishes session
     CloseWindow();
     return 0;
