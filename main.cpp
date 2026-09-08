@@ -17,7 +17,7 @@ int main() {
     float height = sideSize * (sqrt(3.0f) / 2.0f);
 
     // Setting up a color for background (white)
-    Color white = {255, 255, 255, 0};
+    Color white = {255, 255, 255, 255};
 
     // Setting up some text to render
     Font stdfont = GetFontDefault(); // Standard Raylib font
@@ -27,10 +27,10 @@ int main() {
     Color black = {0, 0, 0, 255};
 
     // Mutable color channel for triangle
-    int redChannel = 0;
+    float redChannel = 0.0f;
 
     // Amount per second to change the red channel
-    float shiftPerSec = 200;
+    float shiftPerSec = 200.0f;
     
     // Project Loop
     while (!WindowShouldClose()) {
@@ -56,10 +56,10 @@ int main() {
         else if (redChannel < 0) { redChannel = 0; }
 
         // Dynamic color for triangle
-        Color triangleColor = {redChannel, 0, 0, 255};
+        Color triangleColor = {(unsigned char)redChannel, 0, 0, 255};
 
         // If triangle is being pressed, glow in green too
-        if (CheckCollisionPointTriangle(GetMousePosition(), dot1, dot2, dot3) and IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        if (CheckCollisionPointTriangle(GetMousePosition(), dot1, dot2, dot3) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             triangleColor.g = 255;
         }
 
