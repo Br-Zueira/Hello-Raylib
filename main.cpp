@@ -29,12 +29,6 @@ int main() {
     float textWidth = MeasureText(motto, fontSize); // Width of text, used to centralize the text
     Color black = {0, 0, 0, 255};
 
-    // Mutable color channel for triangle
-    float redChannel = 0.0f;
-
-    // Amount per second to change the red channel
-    float shiftPerSec = 200.0f;
-
     // Project Loop
     while (!WindowShouldClose()) {
         // Toggles cursor (Enter locks it and Esc unlocks it)
@@ -55,27 +49,17 @@ int main() {
         Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
         Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
 
-        // Dynamic color
-        if (IsKeyDown(KEY_A)) { redChannel-= shiftPerSec*dt; } 
-        else if (IsKeyDown(KEY_D)) { redChannel+= shiftPerSec*dt; }
-        
-        // Variable wrapping
-        if (redChannel > 255) { redChannel = 255; }
-        else if (redChannel < 0) { redChannel = 0; }
+        // Dynamic color based on sine waves
+        unsigned char channel = 255*((sinf(GetTime())+1)/2);
 
         // Dynamic color for triangle
-        Color triangleColor = {(unsigned char)redChannel, 0, 0, 255};
-
-        // If triangle is being pressed, glow in green too
-        if (CheckCollisionPointTriangle(GetMousePosition(), dot1, dot2, dot3) && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-            triangleColor.g = 255;
-        }
+        Color triangleColor = {255, channel, channel, 255};
 
         BeginDrawing();
 
-        ClearBackground(white);
+        ClearBackground(black);
         DrawTriangle(dot1, dot2, dot3, triangleColor);
-        DrawText(motto, 10, 10, fontSize, black); // Draws text at top-left with a margin of 10px
+        DrawText(motto, 10, 10, fontSize, white); // Draws text at top-left with a margin of 10px
 
         EndDrawing();
     }
