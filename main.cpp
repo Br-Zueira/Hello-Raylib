@@ -43,10 +43,6 @@ int main() {
         Vector2 dot2 = {vw / 2.0f - (sideSize / 2.0f), dot1.y + height};
         Vector2 dot3 = {vw / 2.0f + (sideSize / 2.0f), dot1.y + height};
 
-        // Text coordinates
-        float textPosX = dot1.x - textWidth/2; // Centered text
-        float textPosY = dot1.y + height + fontSize; // Text right below the triangle
-
         // Dynamic color
         if (IsKeyDown(KEY_A)) { redChannel-= shiftPerSec*dt; } 
         else if (IsKeyDown(KEY_D)) { redChannel+= shiftPerSec*dt; }
@@ -67,7 +63,7 @@ int main() {
 
         ClearBackground(white);
         DrawTriangle(dot1, dot2, dot3, triangleColor);
-        DrawText(motto, textPosX, textPosY, fontSize, black);
+        DrawText(motto, 10, 10, fontSize, black); // Draws text at top-left with a margin of 10px
 
         EndDrawing();
     }
