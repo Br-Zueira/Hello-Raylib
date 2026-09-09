@@ -43,7 +43,7 @@ int main() {
     Vector3 spherePos = {10.0f, 10.0f, 10.0f};
     Mesh sphereMesh = GenMeshSphere(4.0f, 64, 64);
     Model sphereModel = LoadModelFromMesh(sphereMesh);
-    Texture2D brickTexture = LoadTexture("assets/bricks.png");
+    Texture2D brickTexture = LoadTexture("assets/textures/bricks.png");
     sphereModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = brickTexture;
 
     // Setting up cube params
@@ -56,6 +56,13 @@ int main() {
     float cylinderHeight = 15.0f;
     int cylinderSlices = 20;
     Color yellow = {255, 255, 0, 255};
+
+    // Setting up bust params
+    Vector3 bustPos = {6.0f, -10.0f, 5.0f};
+    Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
+
+    // Useful to make a toggle option for updating camera
+    bool updateCam = true;
 
     // Project Loop
     while (!WindowShouldClose()) {
@@ -72,17 +79,20 @@ int main() {
         }
 
         // Makes it possible to analise both types of views (perspective is realistic, orthographic seems to be like globe-to-map projection or 3D-2D slicing)
-        if (IsKeyDown(KEY_P)) {
-            camera.projection = CAMERA_ORTHOGRAPHIC;
-        } else {
-            camera.projection = CAMERA_PERSPECTIVE;
+        if (updateCam) {
+            if (IsKeyDown(KEY_P)) {
+                camera.projection = CAMERA_ORTHOGRAPHIC;
+            } else {
+                camera.projection = CAMERA_PERSPECTIVE;
+            }
         }
 
         // Delta time (useful for physics)
         float dt = GetFrameTime();
 
         // Updates camera rotation and position
-        UpdateCamera(&camera, CAMERA_FREE);
+        if (IsKeyPressed(KEY_C)) { updateCam = !updateCam; } // Toggles camera update on and off
+        if (updateCam) { UpdateCamera(&camera, CAMERA_FREE); }
 
         // Dynamic color based on sine waves
         unsigned char channel = 255*((sinf(GetTime())+1)/2);
@@ -101,6 +111,7 @@ int main() {
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawCube(cubePos, 4, 5, 6, green);
         DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
+        DrawModel(bustModel, bustPos, 10.0f, WHITE);
         EndMode3D();
 
         // Draws motto at top-left with a margin of 10px
@@ -109,6 +120,8 @@ int main() {
         // FOV status
         std::string fovyInfo = "FOV: " + std::to_string(static_cast<int>(camera.fovy)); // Message (example: "FOV: 60"). Casts to int first to cut out decimal part (otherwise it'll print like "60.00000")
         DrawText(fovyInfo.c_str(), 10, vy-10-fontSize, fontSize, WHITE); // Prints the FOV status at bottom-left
+
+        DrawFPS(vw-80, 10);
 
         EndDrawing();
     }
