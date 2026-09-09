@@ -37,6 +37,20 @@ int main() {
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
+    // Setting up each vertex of the triangle
+    Vector3 dot1 = {0.0f, height, 0.0f};
+    Vector3 dot2 = {dot1.x - sideSize/2.0f, dot1.y - height, dot1.z};
+    Vector3 dot3 = {dot1.x + sideSize/2.0f, dot1.y - height, dot1.z};
+
+    // Setting up sphere params
+    Vector3 spherePos = {10.0f, 10.0f, 10.0f};
+    float sphereRadius = 4;
+    Color blue = {0, 0, 255, 255};
+
+    // Setting up cobe params
+    Vector3 cubePos = {-5.0f, 5.0f, 8.0f};
+    Color green = {0, 255, 0, 255};
+
     // Project Loop
     while (!WindowShouldClose()) {
         // Toggles cursor (Enter locks it and Esc unlocks it)
@@ -51,12 +65,7 @@ int main() {
         float dt = GetFrameTime();
 
         // Updates camera rotation and position
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
-
-        // Setting up each vertex of the triangle
-        Vector3 dot1 = {0.0f, height, 0.0f};
-        Vector3 dot2 = {dot1.x - sideSize/2.0f, dot1.y - height, dot1.z};
-        Vector3 dot3 = {dot1.x + sideSize/2.0f, dot1.y - height, dot1.z};
+        UpdateCamera(&camera, CAMERA_FREE);
 
         // Dynamic color based on sine waves
         unsigned char channel = 255*((sinf(GetTime())+1)/2);
@@ -69,13 +78,14 @@ int main() {
         BeginMode3D(camera);
         DrawGrid(100, 5);
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
+        DrawSphere(spherePos, sphereRadius, blue);
+        DrawCube(cubePos, 4, 5, 6, green);
         EndMode3D();
 
         DrawText(motto, 10, 10, fontSize, white); // Draws text at top-left with a margin of 10px
 
         EndDrawing();
     }
- 
 
     // Properly finishes session
     CloseWindow();
