@@ -20,15 +20,11 @@ int main() {
     // Trigonometry nerdy moment: sqrt(3)/2 is tangent of 30°, this is used to make the triangle equilateral
     float height = sideSize * (sqrt(3.0f) / 2.0f);
 
-    // Setting up a color for background (white)
-    Color white = {255, 255, 255, 255};
-
     // Setting up some text to render
     Font stdfont = GetFontDefault(); // Standard Raylib font
     const char *motto = "Libertas quæ sera tamen"; // Minas Gerais flag moto ("Freedom, even if late")
     int fontSize = 20; // Arbitrary font size
     float textWidth = MeasureText(motto, fontSize); // Width of text, used to centralize the text
-    Color black = {0, 0, 0, 255};
 
     // Creating a new camera
     Camera3D camera = {0};
@@ -45,12 +41,21 @@ int main() {
 
     // Setting up sphere params
     Vector3 spherePos = {10.0f, 10.0f, 10.0f};
-    float sphereRadius = 4;
-    Color blue = {0, 0, 255, 255};
+    Mesh sphereMesh = GenMeshSphere(4.0f, 64, 64);
+    Model sphereModel = LoadModelFromMesh(sphereMesh);
+    Texture2D brickTexture = LoadTexture("assets/bricks.png");
+    sphereModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = brickTexture;
 
-    // Setting up cobe params
+    // Setting up cube params
     Vector3 cubePos = {-5.0f, 5.0f, 8.0f};
     Color green = {0, 255, 0, 255};
+
+    // Setting up wire cylinder params
+    Vector3 cylinderPos = {25.0f, -10.0f, 3.0f};
+    float cylinderRadius = 5.0f;
+    float cylinderHeight = 15.0f;
+    int cylinderSlices = 20;
+    Color yellow = {255, 255, 0, 255};
 
     // Project Loop
     while (!WindowShouldClose()) {
@@ -88,26 +93,31 @@ int main() {
 
         BeginDrawing();
 
-        ClearBackground(black);
+        ClearBackground(BLACK);
 
         BeginMode3D(camera);
         DrawGrid(100, 5);
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
-        DrawSphere(spherePos, sphereRadius, blue);
+        DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawCube(cubePos, 4, 5, 6, green);
+        DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         EndMode3D();
 
         // Draws motto at top-left with a margin of 10px
-        DrawText(motto, 10, 10, fontSize, white);
+        DrawText(motto, 10, 10, fontSize, WHITE);
 
         // FOV status
         std::string fovyInfo = "FOV: " + std::to_string(static_cast<int>(camera.fovy)); // Message (example: "FOV: 60"). Casts to int first to cut out decimal part (otherwise it'll print like "60.00000")
-        DrawText(fovyInfo.c_str(), 10, vy-10-fontSize, fontSize, white); // Prints the FOV status at bottom-left
+        DrawText(fovyInfo.c_str(), 10, vy-10-fontSize, fontSize, WHITE); // Prints the FOV status at bottom-left
 
         EndDrawing();
     }
 
-    // Properly finishes session
+    // Avoids memory leaks
+    UnloadModel(sphereModel);
+    UnloadTexture(brickTexture);
+
+    // Closes the window after program shut down
     CloseWindow();
     return 0;
 }
