@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <cmath>
 #include <iostream>
+#include <string>
 
 int main() {
     // Creates a brand new window
@@ -53,6 +54,10 @@ int main() {
 
     // Project Loop
     while (!WindowShouldClose()) {
+        // Useful data for UI and 2D elements
+        vw = GetScreenWidth();
+        vy = GetScreenHeight();
+
         // Toggles cursor (Enter locks it and Esc unlocks it)
         if (IsKeyPressed(KEY_ESCAPE)) {
             EnableCursor();
@@ -78,6 +83,9 @@ int main() {
         unsigned char channel = 255*((sinf(GetTime())+1)/2);
         Color triangleColor = {255, channel, channel, 255};
 
+        // Changes camera FOV based on mouse wheel vertical delta
+        camera.fovy -= GetMouseWheelMoveV().y*2.0f;
+
         BeginDrawing();
 
         ClearBackground(black);
@@ -89,7 +97,12 @@ int main() {
         DrawCube(cubePos, 4, 5, 6, green);
         EndMode3D();
 
-        DrawText(motto, 10, 10, fontSize, white); // Draws text at top-left with a margin of 10px
+        // Draws motto at top-left with a margin of 10px
+        DrawText(motto, 10, 10, fontSize, white);
+
+        // FOV status
+        std::string fovyInfo = "FOV: " + std::to_string(static_cast<int>(camera.fovy)); // Message (example: "FOV: 60"). Casts to int first to cut out decimal part (otherwise it'll print like "60.00000")
+        DrawText(fovyInfo.c_str(), 10, vy-10-fontSize, fontSize, white); // Prints the FOV status at bottom-left
 
         EndDrawing();
     }
