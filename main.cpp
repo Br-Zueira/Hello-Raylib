@@ -61,6 +61,13 @@ int main() {
             DisableCursor();
         }
 
+        // Makes it possible to analise both types of views (perspective is realistic, orthographic seems to be like globe-to-map projection or 3D-2D slicing)
+        if (IsKeyDown(KEY_P)) {
+            camera.projection = CAMERA_ORTHOGRAPHIC;
+        } else {
+            camera.projection = CAMERA_PERSPECTIVE;
+        }
+
         // Delta time (useful for physics)
         float dt = GetFrameTime();
 
