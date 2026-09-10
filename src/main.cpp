@@ -81,7 +81,9 @@ int main() {
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
     GenTextureMipmaps(&bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
     SetTextureFilter(bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
-    bustModel.materials[0].shader = lightingShader;
+    for (int i = 0; i < bustModel.materialCount; i++) {
+        bustModel.materials[i].shader = lightingShader;
+    }
 
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
