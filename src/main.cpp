@@ -83,13 +83,14 @@ int main() {
     int offsetY = distribution(prngDevice);
     
     // Setting up procedural mesh
+    Shader terrainShader = LoadShader("shaders/terrain.vs", "shaders/terrain.fs");
+    terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos");
     Vector3 terrainSize = {200.0f, 25.0f, 200.0f};
     Vector3 terrainPos = {-terrainSize.x/2, -terrainSize.y/2, -terrainSize.z/2};
     Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX, offsetY, 4.0f);
     Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
     Model terrainModel = LoadModelFromMesh(terrainMesh);
-    terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
-    terrainModel.materials[0].shader = lightingShader;
+    terrainModel.materials[0].shader = terrainShader;
 
     // Setting up bust params
     Vector3 bustPos = {8.0f, 15.0f, -5.0f};
@@ -150,7 +151,9 @@ int main() {
         // Updates lighting shader values, specially picking up camera position
         float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
         SetShaderValue(lightingShader, lightingShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+        SetShaderValue(terrainShader, terrainShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
         UpdateLightValues(lightingShader, light);
+        UpdateLightValues(terrainShader, light);
 
         BeginMode3D(camera);
         DrawGrid(100, 5);
@@ -182,6 +185,7 @@ int main() {
     UnloadTexture(brickTexture);
     UnloadTexture(greenTexture);
     UnloadShader(lightingShader);
+    UnloadShader(terrainShader);
 
     // Closes the window after program shut down
     CloseWindow();
