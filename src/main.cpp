@@ -48,7 +48,12 @@ int main() {
 
     // Setting up cube params
     Vector3 cubePos = {-5.0f, 5.0f, 8.0f};
+    Mesh cubeMesh = GenMeshCube(4.0f, 5.0f, 6.0f);
+    Model cubeModel = LoadModelFromMesh(cubeMesh);
     Color green = {0, 255, 0, 255};
+    Image greenImg = GenImageColor(1, 1, green);
+    Texture2D greenTexture = LoadTextureFromImage(greenImg);
+    cubeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
 
     // Setting up wire cylinder params
     Vector3 cylinderPos = {25.0f, -10.0f, 3.0f};
@@ -109,7 +114,7 @@ int main() {
         DrawGrid(100, 5);
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
-        DrawCube(cubePos, 4, 5, 6, green);
+        DrawModel(cubeModel, cubePos, 1.0f, WHITE);
         DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         DrawModel(bustModel, bustPos, 10.0f, WHITE);
         EndMode3D();
@@ -129,6 +134,9 @@ int main() {
     // Avoids memory leaks
     UnloadModel(sphereModel);
     UnloadTexture(brickTexture);
+    UnloadModel(cubeModel);
+    UnloadTexture(greenTexture);
+    UnloadModel(bustModel);
 
     // Closes the window after program shut down
     CloseWindow();
