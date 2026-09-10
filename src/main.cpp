@@ -1,7 +1,7 @@
 #include <raylib.h>
 #include <cmath>
-#include <iostream>
 #include <string>
+#include <random>
 
 #define RLIGHTS_IMPLEMENTATION
 #include "libs/rlights.h"
@@ -70,14 +70,29 @@ int main() {
     UnloadImage(greenImg);
 
     // Setting up wire cylinder params
-    Vector3 cylinderPos = {25.0f, -10.0f, 3.0f};
     float cylinderRadius = 5.0f;
     float cylinderHeight = 15.0f;
     int cylinderSlices = 20;
+    Vector3 cylinderPos = {25.0f, -cylinderHeight/2, 3.0f};
     Color yellow = {255, 255, 0, 255};
 
+    // Setting up PRNG device
+    std::default_random_engine prngDevice;
+    std::uniform_int_distribution<int> distribution(0, 1000);
+    int offsetX = distribution(prngDevice);
+    int offsetY = distribution(prngDevice);
+    
+    // Setting up procedural mesh
+    Vector3 terrainSize = {200.0f, 25.0f, 200.0f};
+    Vector3 terrainPos = {-terrainSize.x/2, -terrainSize.y/2, -terrainSize.z/2};
+    Image perlinNoise = GenImagePerlinNoise(512, 512, offsetX, offsetY, 4.0f);
+    Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
+    Model terrainModel = LoadModelFromMesh(terrainMesh);
+    terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
+    terrainModel.materials[0].shader = lightingShader;
+
     // Setting up bust params
-    Vector3 bustPos = {6.0f, -10.0f, 5.0f};
+    Vector3 bustPos = {8.0f, 0.0f, 5.0f};
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
     GenTextureMipmaps(&bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
     SetTextureFilter(bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
@@ -144,6 +159,7 @@ int main() {
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
         DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         DrawModel(bustModel, bustPos, 10.0f, WHITE);
+        DrawModel(terrainModel, terrainPos, 1.0f, WHITE);
         EndMode3D();
 
         // Draws motto at top-left with a margin of 10px
