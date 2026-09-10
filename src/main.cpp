@@ -44,12 +44,12 @@ int main() {
     camera.projection = CAMERA_PERSPECTIVE;
 
     // Setting up each vertex of the triangle
-    Vector3 dot1 = {0.0f, height, 0.0f};
+    Vector3 dot1 = {0.0f, height + 12.0f, 0.0f};
     Vector3 dot2 = {dot1.x - sideSize/2.0f, dot1.y - height, dot1.z};
     Vector3 dot3 = {dot1.x + sideSize/2.0f, dot1.y - height, dot1.z};
 
     // Setting up sphere params
-    Vector3 spherePos = {10.0f, 10.0f, 10.0f};
+    Vector3 spherePos = {10.0f, 20.0f, 10.0f};
     Mesh sphereMesh = GenMeshSphere(4.0f, 64, 64);
     Model sphereModel = LoadModelFromMesh(sphereMesh);
     Texture2D brickTexture = LoadTexture("assets/textures/bricks.png");
@@ -59,7 +59,7 @@ int main() {
     sphereModel.materials[0].shader = lightingShader;
 
     // Setting up cube params
-    Vector3 cubePos = {-5.0f, 5.0f, 8.0f};
+    Vector3 cubePos = {-5.0f, 15.0f, 8.0f};
     Mesh cubeMesh = GenMeshCube(4.0f, 5.0f, 6.0f);
     Model cubeModel = LoadModelFromMesh(cubeMesh);
     Color green = {0, 255, 0, 255};
@@ -73,7 +73,7 @@ int main() {
     float cylinderRadius = 5.0f;
     float cylinderHeight = 15.0f;
     int cylinderSlices = 20;
-    Vector3 cylinderPos = {25.0f, -cylinderHeight/2, 3.0f};
+    Vector3 cylinderPos = {25.0f, 0.0f, 3.0f};
     Color yellow = {255, 255, 0, 255};
 
     // Setting up PRNG device
@@ -85,14 +85,14 @@ int main() {
     // Setting up procedural mesh
     Vector3 terrainSize = {200.0f, 25.0f, 200.0f};
     Vector3 terrainPos = {-terrainSize.x/2, -terrainSize.y/2, -terrainSize.z/2};
-    Image perlinNoise = GenImagePerlinNoise(512, 512, offsetX, offsetY, 4.0f);
+    Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX, offsetY, 4.0f);
     Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
     Model terrainModel = LoadModelFromMesh(terrainMesh);
     terrainModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
     terrainModel.materials[0].shader = lightingShader;
 
     // Setting up bust params
-    Vector3 bustPos = {8.0f, 0.0f, 5.0f};
+    Vector3 bustPos = {8.0f, 15.0f, -5.0f};
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
     GenTextureMipmaps(&bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
     SetTextureFilter(bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
@@ -176,10 +176,11 @@ int main() {
 
     // Avoids memory leaks
     UnloadModel(sphereModel);
-    UnloadTexture(brickTexture);
     UnloadModel(cubeModel);
-    UnloadTexture(greenTexture);
+    UnloadModel(terrainModel);
     UnloadModel(bustModel);
+    UnloadTexture(brickTexture);
+    UnloadTexture(greenTexture);
     UnloadShader(lightingShader);
 
     // Closes the window after program shut down
