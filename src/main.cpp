@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include "libs/rlights.h"
 
 int main() {
     // Creates a brand new window
