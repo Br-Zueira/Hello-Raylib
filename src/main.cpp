@@ -44,6 +44,8 @@ int main() {
     Mesh sphereMesh = GenMeshSphere(4.0f, 64, 64);
     Model sphereModel = LoadModelFromMesh(sphereMesh);
     Texture2D brickTexture = LoadTexture("assets/textures/bricks.png");
+    GenTextureMipmaps(&brickTexture); // Basically "detail levels"
+    SetTextureFilter(brickTexture, TEXTURE_FILTER_TRILINEAR); // Smoother transition between mipmaps
     sphereModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = brickTexture;
 
     // Setting up cube params
@@ -52,8 +54,9 @@ int main() {
     Model cubeModel = LoadModelFromMesh(cubeMesh);
     Color green = {0, 255, 0, 255};
     Image greenImg = GenImageColor(1, 1, green);
-    Texture2D greenTexture = LoadTextureFromImage(greenImg);
+    Texture2D greenTexture = LoadTextureFromImage(greenImg); // No need for mipmaps because it's already only 1 pixel
     cubeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
+    UnloadImage(greenImg);
 
     // Setting up wire cylinder params
     Vector3 cylinderPos = {25.0f, -10.0f, 3.0f};
@@ -65,6 +68,8 @@ int main() {
     // Setting up bust params
     Vector3 bustPos = {6.0f, -10.0f, 5.0f};
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
+    GenTextureMipmaps(&bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
+    SetTextureFilter(bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
 
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
