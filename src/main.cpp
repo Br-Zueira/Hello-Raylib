@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+
+#define RLIGHTS_IMPLEMENTATION
 #include "libs/rlights.h"
 
 int main() {
@@ -14,6 +16,12 @@ int main() {
 
     // Disable the exit key (so ESC is free for me to use :) )
     SetExitKey(KEY_NULL);
+
+    // Setting up lighting
+    Shader lightingShader = LoadShader("example-shaders/lighting.vs", "example-shaders/lighting.fs");
+    lightingShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(lightingShader, "viewPos");
+
+    Light light = CreateLight(LIGHT_POINT, (Vector3){0.0f, 10.0f, 0.0f}, (Vector3){0}, WHITE, lightingShader);
 
     // Settings for rendering a triangle
     float sideSize = 8.0f;
@@ -48,6 +56,7 @@ int main() {
     GenTextureMipmaps(&brickTexture); // Basically "detail levels"
     SetTextureFilter(brickTexture, TEXTURE_FILTER_TRILINEAR); // Smoother transition between mipmaps
     sphereModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = brickTexture;
+    sphereModel.materials[0].shader = lightingShader;
 
     // Setting up cube params
     Vector3 cubePos = {-5.0f, 5.0f, 8.0f};
@@ -57,6 +66,7 @@ int main() {
     Image greenImg = GenImageColor(1, 1, green);
     Texture2D greenTexture = LoadTextureFromImage(greenImg); // No need for mipmaps because it's already only 1 pixel
     cubeModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = greenTexture;
+    cubeModel.materials[0].shader = lightingShader;
     UnloadImage(greenImg);
 
     // Setting up wire cylinder params
@@ -71,6 +81,7 @@ int main() {
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
     GenTextureMipmaps(&bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
     SetTextureFilter(bustModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture, TEXTURE_FILTER_TRILINEAR);
+    bustModel.materials[0].shader = lightingShader;
 
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
@@ -112,9 +123,17 @@ int main() {
         // Changes camera FOV based on mouse wheel vertical delta
         camera.fovy -= GetMouseWheelMoveV().y*2.0f;
 
+        // Makes light teleport to camera
+        if (IsKeyDown(KEY_L)) { light.position = camera.position; }
+
         BeginDrawing();
 
         ClearBackground(BLACK);
+
+        // Updates lighting shader values, specially picking up camera position
+        float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
+        SetShaderValue(lightingShader, lightingShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+        UpdateLightValues(lightingShader, light);
 
         BeginMode3D(camera);
         DrawGrid(100, 5);
@@ -143,6 +162,7 @@ int main() {
     UnloadModel(cubeModel);
     UnloadTexture(greenTexture);
     UnloadModel(bustModel);
+    UnloadShader(lightingShader);
 
     // Closes the window after program shut down
     CloseWindow();
