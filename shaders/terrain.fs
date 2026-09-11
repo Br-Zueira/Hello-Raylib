@@ -46,10 +46,16 @@ void main()
     vec4 tint = colDiffuse*fragColor;
 
     // NOTE: Implement here your fragment shader code
-    vec4 lowColor = vec4(0.5, 0.2, 0.1, 1.0);
-    vec4 highColor = vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 lowColor = vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 middleColor = vec4(0.5, 0.2, 0.1, 1.0);
+    vec4 highColor = vec4(1.0, 1.0, 1.0, 1.0);
     float heightFactor = clamp(localFragPosition.y/MAX_HEIGHT, 0.0, 1.0);
-    vec4 texelColor = mix(lowColor, highColor, heightFactor);
+    vec4 texelColor;
+    if (heightFactor < 0.5) {
+        texelColor = mix(lowColor, middleColor, heightFactor * 2.0);
+    } else {
+        texelColor = mix(middleColor, highColor, (heightFactor - 0.5) * 2.0);
+    }
 
     for (int i = 0; i < MAX_LIGHTS; i++)
     {

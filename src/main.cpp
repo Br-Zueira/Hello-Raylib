@@ -77,7 +77,8 @@ int main() {
     Color yellow = {255, 255, 0, 255};
 
     // Setting up PRNG device
-    std::default_random_engine prngDevice;
+    std::random_device rd;
+    std::default_random_engine prngDevice(rd());
     std::uniform_int_distribution<int> distribution(0, 1000);
     int offsetX = distribution(prngDevice);
     int offsetY = distribution(prngDevice);
