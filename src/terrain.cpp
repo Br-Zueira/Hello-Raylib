@@ -4,7 +4,7 @@
 #include <cmath>
 #include <random>
 #include <vector>
-#include <algorithm>
+#include <ranges>
 #include "libs/rlights.h"
 
 // Setting up PRNG device and
@@ -40,7 +40,9 @@ Chunk::Chunk(int x, int y) {
 
 // Chunk deconstructor
 Chunk::~Chunk() {
-    UnloadModel(chunkModel);
+    if (IsModelValid(chunkModel)) {
+        UnloadModel(chunkModel);
+    }
 }
 
 void Chunk::Init() {
@@ -54,7 +56,7 @@ void Chunk::UpdateChunks(Vector3 cameraPos) {
     // Converts the camera 3D position to the chunk grid position it belongs to
     int cameraGridPosX = static_cast<int>(std::floor(cameraPos.x/Chunk::chunkSize));
     int cameraGridPosY = static_cast<int>(std::floor(cameraPos.z/Chunk::chunkSize));
-    Vector2 cameraGridPos = {cameraGridPosX, cameraGridPosY};
+    Vector2 cameraGridPos = {static_cast<float>(cameraGridPosX), static_cast<float>(cameraGridPosY)};
 
     std::vector<Vector2> requestedBatch;
 
@@ -62,20 +64,27 @@ void Chunk::UpdateChunks(Vector3 cameraPos) {
     int radius = static_cast<int>(Chunk::renderDistance/2);
     for (int x = cameraGridPosX - radius; x <= cameraGridPosX + radius; x++) {
         for (int y = cameraGridPosY - radius; y <= cameraGridPosY + radius; y++) {
-            Chunk::chunkBrequestedBatchatch.emplace_back(Vector2{x, y});
+            requestedBatch.emplace_back(Vector2{static_cast<float>(x), static_cast<float>(y)});
         }
     }
 
     std::vector<Vector2> redundantChunks;
 
-    for (auto& chunkInstance : Chunk::generatedChunks) {
-        int chunkGridPosX = static_cast<int>(std::floor(chunkInstance.chunkPosition.x/Chunk::chunkSize));
-        int chunkGridPosY = static_cast<int>(std::floor(chunkInstance.chunkPosition.z/Chunk::chunkSize));
-        Vector2 chunkGridPos = {chunkGridPosX, chunkGridPosY};
+    for (auto chunkInstance = Chunk::generatedChunks.begin(); chunkInstance != Chunk::generatedChunks.end(); ) {
+        int chunkGridPosX = static_cast<int>(std::floor(chunkInstance->chunkPosition.x/Chunk::chunkSize));
+        int chunkGridPosY = static_cast<int>(std::floor(chunkInstance->chunkPosition.z/Chunk::chunkSize));
+        Vector2 chunkGridPos = {static_cast<float>(chunkGridPosX), static_cast<float>(chunkGridPosY)};
         if (std::ranges::contains(requestedBatch, chunkGridPos)) {
             redundantChunks.push_back(chunkGridPos);
+            ++chunkInstance;
         } else {
-            
+            chunkInstance = Chunk::generatedChunks.erase(chunkInstance); // Do I call deconstructor here?
+        }
+    }
+
+    for (auto& chunkGridPos : requestedBatch) {
+        if (!std::ranges::contains(redundantChunks, chunkGridPos)) {
+            Chunk::generatedChunks.emplace_back(chunkGridPos.x, chunkGridPos.y);
         }
     }
 }
@@ -95,7 +104,9 @@ void Chunk::DrawChunks(float cameraPos[3], Light light) {
 // Unloads chunk model and shader to free RAM and avoid memory leaks
 void Chunk::UnloadChunks() {
     for (auto& chunkInstance : Chunk::generatedChunks) {
-        UnloadModel(chunkInstance.chunkModel);
+        if (IsModelValid(chunkInstance.chunkModel)) {
+            UnloadModel(chunkInstance.chunkModel);
+        }
     }
     UnloadShader(Chunk::terrainShader);
 }

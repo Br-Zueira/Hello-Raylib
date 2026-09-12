@@ -6,7 +6,7 @@
 #include <cmath>
 #include <random>
 #include <vector>
-#include <algorithm>
+#include <ranges>
 #include "rlights.h"
 
 class Chunk {

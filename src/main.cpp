@@ -88,8 +88,6 @@ int main() {
         bustModel.materials[i].shader = lightingShader;
     }
 
-    Chunk::GenerateChunks();
-
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
 
@@ -133,10 +131,12 @@ int main() {
         // Makes light teleport to camera
         if (IsKeyDown(KEY_L)) { light.position = camera.position; }
 
+        Chunk::UpdateChunks(camera.position);
+        
         BeginDrawing();
-
+        
         ClearBackground(SKYBLUE);
-
+        
         // Updates lighting shader values, specially picking up camera position
         float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
         SetShaderValue(lightingShader, lightingShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
