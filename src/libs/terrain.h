@@ -5,12 +5,13 @@
 #include <cmath>
 #include <random>
 #include <vector>
+#include "rlights.h"
 
 class Chunk {
     public:
         Chunk(int x, int y); // X and Y are positions in chunk grid
         static void GenerateChunks(); // Generates all chunks at once
-        static void DrawChunks(); // Draws all chunks at once
+        static void DrawChunks(float cameraPos[3], Light light); // Draws all chunks at once
         static void UnloadChunks(); // Unloads shader and all chunk models
         static Shader terrainShader;
         Model chunkModel;

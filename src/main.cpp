@@ -5,6 +5,7 @@
 
 #define RLIGHTS_IMPLEMENTATION
 #include "libs/rlights.h"
+#undef RLIGHTS_IMPLEMENTATION
 
 #include "libs/terrain.h"
 
@@ -78,34 +79,6 @@ int main() {
     Vector3 cylinderPos = {25.0f, 0.0f, 3.0f};
     Color yellow = {255, 255, 0, 255};
 
-    // Setting up PRNG device
-    std::random_device rd;
-    std::default_random_engine prngDevice(rd());
-    std::uniform_int_distribution<int> distribution(0, 1000);
-    
-    // Setting up procedural mesh
-    int offsetX = distribution(prngDevice);
-    int offsetY = distribution(prngDevice);
-    int chunkCoordX = 0; // Like a grid of chunks, where chunkCoord is the index of it
-    int chunkCoordY = 0; 
-    int chunkNum = 5; // # TODO: Number of chunks (like 3x3 or 5x5)
-    float chunkSize = 64.0f; // Size of each chunk
-
-    // The custom terrain shader (lighting + heigh-based color)
-    Shader terrainShader = LoadShader("shaders/terrain.vs", "shaders/terrain.fs");
-    terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos"); 
-
-    // Terrain data
-    Vector3 terrainSize = {chunkSize, 25.0f, chunkSize};
-    Vector3 terrainPos = {chunkSize*chunkCoordX, -terrainSize.y/2, chunkSize*chunkCoordY};
-
-    // The chunk itself
-    Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX + (chunkCoordX*chunkSize), offsetY + (chunkCoordY*chunkSize), 2.0f);
-    Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
-    Model terrainModel = LoadModelFromMesh(terrainMesh);
-    terrainModel.materials[0].shader = terrainShader;
-    UnloadImage(perlinNoise);
-
     // Setting up bust params
     Vector3 bustPos = {8.0f, 15.0f, -5.0f};
     Model bustModel = LoadModel("assets/marble_bust_01_4k.gltf");
@@ -114,6 +87,8 @@ int main() {
     for (int i = 0; i < bustModel.materialCount; i++) {
         bustModel.materials[i].shader = lightingShader;
     }
+
+    Chunk::GenerateChunks();
 
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
@@ -165,9 +140,7 @@ int main() {
         // Updates lighting shader values, specially picking up camera position
         float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
         SetShaderValue(lightingShader, lightingShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
-        SetShaderValue(terrainShader, terrainShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
         UpdateLightValues(lightingShader, light);
-        UpdateLightValues(terrainShader, light);
 
         BeginMode3D(camera);
         if (IsKeyDown(KEY_G)) { DrawGrid(100, 5); }
@@ -176,7 +149,7 @@ int main() {
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
         DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         DrawModel(bustModel, bustPos, 10.0f, WHITE);
-        DrawModel(terrainModel, terrainPos, 1.0f, WHITE);
+        Chunk::DrawChunks(cameraPos, light);
         EndMode3D();
 
         // Draws motto at top-left with a margin of 10px
@@ -194,12 +167,11 @@ int main() {
     // Avoids memory leaks
     UnloadModel(sphereModel);
     UnloadModel(cubeModel);
-    UnloadModel(terrainModel);
     UnloadModel(bustModel);
     UnloadTexture(brickTexture);
     UnloadTexture(greenTexture);
     UnloadShader(lightingShader);
-    UnloadShader(terrainShader);
+    Chunk::UnloadChunks();
 
     // Closes the window after program shut down
     CloseWindow();
