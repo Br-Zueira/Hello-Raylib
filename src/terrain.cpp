@@ -24,7 +24,8 @@ Chunk::Chunk(int x, int y) {
     chunkPosition = {Chunk::chunkSize*x, -Chunk::chunkHeight/2, Chunk::chunkSize*y};
 
     // Perlin noise and chunk mesh generation
-    Image perlinNoise = GenImagePerlinNoise(chunkSize, chunkSize, offsetX + (x*chunkSize), offsetY + (y*chunkSize), 2.0f);
+    float pnSize = chunkSize + 1; // Corrects gap between chunks
+    Image perlinNoise = GenImagePerlinNoise(pnSize, pnSize, offsetX + (x*chunkSize), offsetY + (y*chunkSize), 2.0f);
     Mesh chunkMesh = GenMeshHeightmap(perlinNoise, chunkSizeVec3);
 
     // Generation of the chunk model itself
