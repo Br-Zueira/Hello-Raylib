@@ -80,15 +80,25 @@ int main() {
     std::random_device rd;
     std::default_random_engine prngDevice(rd());
     std::uniform_int_distribution<int> distribution(0, 1000);
-    int offsetX = distribution(prngDevice);
-    int offsetY = distribution(prngDevice);
     
     // Setting up procedural mesh
+    int offsetX = distribution(prngDevice);
+    int offsetY = distribution(prngDevice);
+    int chunkCoordX = 0; // Like a grid of chunks, where chunkCoord is the index of it
+    int chunkCoordY = 0; 
+    int chunkNum = 5; // # TODO: Number of chunks (like 3x3 or 5x5)
+    float chunkSize = 64.0f; // Size of each chunk
+
+    // The custom terrain shader (lighting + heigh-based color)
     Shader terrainShader = LoadShader("shaders/terrain.vs", "shaders/terrain.fs");
-    terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos");
-    Vector3 terrainSize = {200.0f, 25.0f, 200.0f};
-    Vector3 terrainPos = {-terrainSize.x/2, -terrainSize.y/2, -terrainSize.z/2};
-    Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX, offsetY, 4.0f);
+    terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos"); 
+
+    // Terrain data
+    Vector3 terrainSize = {chunkSize, 25.0f, chunkSize};
+    Vector3 terrainPos = {chunkSize*chunkCoordX, -terrainSize.y/2, chunkSize*chunkCoordY};
+
+    // The chunk itself
+    Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX + (chunkCoordX*chunkSize), offsetY + (chunkCoordY*chunkSize), 2.0f);
     Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
     Model terrainModel = LoadModelFromMesh(terrainMesh);
     terrainModel.materials[0].shader = terrainShader;
@@ -147,7 +157,7 @@ int main() {
 
         BeginDrawing();
 
-        ClearBackground(BLACK);
+        ClearBackground(SKYBLUE);
 
         // Updates lighting shader values, specially picking up camera position
         float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
@@ -157,7 +167,7 @@ int main() {
         UpdateLightValues(terrainShader, light);
 
         BeginMode3D(camera);
-        DrawGrid(100, 5);
+        if (IsKeyDown(KEY_G)) { DrawGrid(100, 5); }
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
