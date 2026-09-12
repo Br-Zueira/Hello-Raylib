@@ -1,6 +1,4 @@
-#ifndef TERRAIN_H
-#define TERRAIN_H
-
+#include "libs/terrain.h"
 #include <raylib.h>
 #include <cmath>
 #include <random>
@@ -27,4 +25,18 @@ class Chunk {
         static int offsetY;
 }
 
-#endif
+function Chunk::Chunk(int x, int y) {
+
+}
+
+function Chunk::GenerateChunks() {
+
+}
+
+function Chunk::DrawChunks() {
+
+}
+
+function Chunk::UnloadChunks() {
+
+}
