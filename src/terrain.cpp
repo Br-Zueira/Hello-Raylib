@@ -4,39 +4,39 @@
 #include <random>
 #include <vector>
 
-class Chunk {
-    public:
-        Chunk(int x, int y); // X and Y are positions in chunk grid
-        static void GenerateChunks(); // Generates all chunks at once
-        static void DrawChunks(); // Draws all chunks at once
-        static void UnloadChunks(); // Unloads shader and all chunk models
-        static Shader terrainShader;
-        Model chunkModel;
-        Vector3 chunkPosition;
-    private:
-        static constexpr int chunkNum = 5;
-        static constexpr int chunkSize = 64; // Only X/Z (X/Y in grid)
-        static constexpr Vector3 chunkSizeVec3 = {chunkSize, 25, chunkSize}; // X, Y and Z (chunkSize, height, chunkSize)
-        static std::vector<Chunk> generatedChunks; // Storaged so it can be easily drawed and updated later
-        static std::random_device rd;
-        static std::default_random_engine prngDevice;
-        static std::uniform_int_distribution<int> distribution;
-        static int offsetX;
-        static int offsetY;
+std::random_device rd;
+std::default_random_engine prngDevice(rd());
+std::uniform_int_distribution<int> distribution(0, 1000);
+Chunk::offsetX = distribution(prngDevice);
+Chunk::offsetY = distribution(prngDevice);
+
+Chunk::Chunk(int x, int y) {
+    Vector3 terrainPos = {Chunk::chunkSize*x, -Chunk::chunkHeight/2, Chunk::chunkSize*y};
+
+    // The chunk itself
+    Image perlinNoise = GenImagePerlinNoise(64, 64, offsetX + (chunkCoordX*chunkSize), offsetY + (chunkCoordY*chunkSize), 2.0f);
+    Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
+    Model terrainModel = LoadModelFromMesh(terrainMesh);
+    terrainModel.materials[0].shader = terrainShader;
+    UnloadImage(perlinNoise);
 }
 
-function Chunk::Chunk(int x, int y) {
+void Chunk::GenerateChunks() {
+    // The custom terrain shader (lighting + heigh-based color)
+    Chunk::terranShader = LoadShader("shaders/terrain.vs", "shaders/terrain.fs");
+    terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos");
+    
+    for (int x = 0; x < Chunk::chunkNum; x++) {
+        for (int y = 0; y < Chunk::chunkNum; y++) {
+            Chunk::Chunk(x, y)
+        }
+    }
+}
+
+void Chunk::DrawChunks() {
 
 }
 
-function Chunk::GenerateChunks() {
-
-}
-
-function Chunk::DrawChunks() {
-
-}
-
-function Chunk::UnloadChunks() {
+void Chunk::UnloadChunks() {
 
 }

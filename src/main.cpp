@@ -6,6 +6,8 @@
 #define RLIGHTS_IMPLEMENTATION
 #include "libs/rlights.h"
 
+#include "libs/terrain.h"
+
 int main() {
     // Creates a brand new window
     int vw = 800;
@@ -102,6 +104,7 @@ int main() {
     Mesh terrainMesh = GenMeshHeightmap(perlinNoise, terrainSize);
     Model terrainModel = LoadModelFromMesh(terrainMesh);
     terrainModel.materials[0].shader = terrainShader;
+    UnloadImage(perlinNoise);
 
     // Setting up bust params
     Vector3 bustPos = {8.0f, 15.0f, -5.0f};

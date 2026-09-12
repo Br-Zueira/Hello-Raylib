@@ -16,15 +16,13 @@ class Chunk {
         Model chunkModel;
         Vector3 chunkPosition;
     private:
+        static std::vector<Chunk> generatedChunks;
         static constexpr int chunkNum = 5;
-        static constexpr int chunkSize = 64; // Only X/Z (X/Y in grid)
-        static constexpr Vector3 chunkSizeVec3 = {chunkSize, 25, chunkSize}; // X, Y and Z (chunkSize, height, chunkSize)
-        static std::vector<Chunk> generatedChunks; // Storaged so it can be easily drawed and updated later
-        static std::random_device rd;
-        static std::default_random_engine prngDevice;
-        static std::uniform_int_distribution<int> distribution;
+        static constexpr float chunkSize = 64.0f; // Only X/Z (X/Y in grid)
+        static constexpr float chunkHeight = 25.0f;
+        static constexpr Vector3 chunkSizeVec3 = {chunkSize, chunkHeight, chunkSize}; // X, Y and Z (chunkSize, height, chunkSize)
         static int offsetX;
         static int offsetY;
-}
+};
 
 #endif
