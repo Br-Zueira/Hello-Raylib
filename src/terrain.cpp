@@ -1,8 +1,10 @@
 #include "libs/terrain.h"
 #include <raylib.h>
+#include <raymath.h>
 #include <cmath>
 #include <random>
 #include <vector>
+#include <algorithm>
 #include "libs/rlights.h"
 
 // Setting up PRNG device and
@@ -18,14 +20,14 @@ int Chunk::offsetY = distribution(prngDevice);
 Shader Chunk::terrainShader;
 std::vector<Chunk> Chunk::generatedChunks;
 
-// Chunk constructors
+// Chunk constructor
 Chunk::Chunk(int x, int y) {
     // Position of the said chunk
     chunkPosition = {Chunk::chunkSize*x, -Chunk::chunkHeight/2, Chunk::chunkSize*y};
 
     // Perlin noise and chunk mesh generation
     float pnSize = chunkSize + 1; // Corrects gap between chunks
-    Image perlinNoise = GenImagePerlinNoise(pnSize, pnSize, offsetX + (x*chunkSize), offsetY + (y*chunkSize), 2.0f);
+    Image perlinNoise = GenImagePerlinNoise(pnSize, pnSize, offsetX + (x*chunkSize), offsetY + (y*chunkSize), 1.25f);
     Mesh chunkMesh = GenMeshHeightmap(perlinNoise, chunkSizeVec3);
 
     // Generation of the chunk model itself
@@ -36,16 +38,44 @@ Chunk::Chunk(int x, int y) {
     UnloadImage(perlinNoise);
 }
 
-// Creates all chunks at once
-void Chunk::GenerateChunks() {
+// Chunk deconstructor
+Chunk::~Chunk() {
+    UnloadModel(chunkModel);
+}
+
+void Chunk::Init() {
     // The custom terrain shader (lighting + heigh-based color)
     Chunk::terrainShader = LoadShader("shaders/terrain.vs", "shaders/terrain.fs");
     terrainShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(terrainShader, "viewPos");
-    
-    // Generates each chunk, along with its respective coordinate in the grid
-    for (int x = 0; x < Chunk::chunkNum; x++) {
-        for (int y = 0; y < Chunk::chunkNum; y++) {
-            Chunk::generatedChunks.emplace_back(x, y);
+}
+
+// Creates all chunks at once
+void Chunk::UpdateChunks(Vector3 cameraPos) {
+    // Converts the camera 3D position to the chunk grid position it belongs to
+    int cameraGridPosX = static_cast<int>(std::floor(cameraPos.x/Chunk::chunkSize));
+    int cameraGridPosY = static_cast<int>(std::floor(cameraPos.z/Chunk::chunkSize));
+    Vector2 cameraGridPos = {cameraGridPosX, cameraGridPosY};
+
+    std::vector<Vector2> requestedBatch;
+
+    // Updates chunks, along with its respective coordinate in the grid
+    int radius = static_cast<int>(Chunk::renderDistance/2);
+    for (int x = cameraGridPosX - radius; x <= cameraGridPosX + radius; x++) {
+        for (int y = cameraGridPosY - radius; y <= cameraGridPosY + radius; y++) {
+            Chunk::chunkBrequestedBatchatch.emplace_back(Vector2{x, y});
+        }
+    }
+
+    std::vector<Vector2> redundantChunks;
+
+    for (auto& chunkInstance : Chunk::generatedChunks) {
+        int chunkGridPosX = static_cast<int>(std::floor(chunkInstance.chunkPosition.x/Chunk::chunkSize));
+        int chunkGridPosY = static_cast<int>(std::floor(chunkInstance.chunkPosition.z/Chunk::chunkSize));
+        Vector2 chunkGridPos = {chunkGridPosX, chunkGridPosY};
+        if (std::ranges::contains(requestedBatch, chunkGridPos)) {
+            redundantChunks.push_back(chunkGridPos);
+        } else {
+            
         }
     }
 }
