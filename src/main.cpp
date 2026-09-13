@@ -88,6 +88,13 @@ int main() {
         bustModel.materials[i].shader = lightingShader;
     }
 
+    // Setting up the plane that shows the Mandelbrot fractal
+    Shader mandelbrotShader = LoadShader("shaders/mandelbrot.vs", "shaders/mandelbrot.fs");
+    Vector3 mandelbrotPlanePos = {20.0f, 15.0f, -5.0f};
+    Mesh mandelbrotPlaneMesh = GenMeshPlane(6, 4, 1, 1);
+    Model mandelbrotPlaneModel = LoadModelFromMesh(mandelbrotPlaneMesh);
+    mandelbrotPlaneModel.materials[0].shader = mandelbrotShader;
+
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
 
@@ -149,9 +156,10 @@ int main() {
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
-        DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         DrawModel(bustModel, bustPos, 10.0f, WHITE);
+        DrawModelEx(mandelbrotPlaneModel, mandelbrotPlanePos, Vector3{1.0f, 0.0f, 0.0f}, 90.0f, Vector3{1.0f, 1.0f, 1.0f}, WHITE);
         Chunk::DrawChunks(cameraPos, light);
+        DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         EndMode3D();
 
         // Draws motto at top-left with a margin of 10px
@@ -170,9 +178,11 @@ int main() {
     UnloadModel(sphereModel);
     UnloadModel(cubeModel);
     UnloadModel(bustModel);
+    UnloadModel(mandelbrotPlaneModel);
     UnloadTexture(brickTexture);
     UnloadTexture(greenTexture);
     UnloadShader(lightingShader);
+    UnloadShader(mandelbrotShader);
     Chunk::UnloadChunks();
 
     // Closes the window after program shut down
