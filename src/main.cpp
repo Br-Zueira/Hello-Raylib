@@ -91,6 +91,8 @@ int main() {
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
 
+    Chunk::Init();
+
     // Project Loop
     while (!WindowShouldClose()) {
         // Useful data for UI and 2D elements
