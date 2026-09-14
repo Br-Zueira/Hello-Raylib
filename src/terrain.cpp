@@ -109,10 +109,8 @@ void Chunk::DrawChunks(float cameraPos[3], Light light) {
 
 // Unloads chunk model and shader to free RAM and avoid memory leaks
 void Chunk::UnloadChunks() {
-    for (auto& chunkInstance : Chunk::generatedChunks) {
-        if (IsModelValid(chunkInstance.chunkModel)) {
-            UnloadModel(chunkInstance.chunkModel);
-        }
+    Chunk::generatedChunks.clear();
+    if (IsShaderValid(Chunk::terrainShader)) {
+        UnloadShader(Chunk::terrainShader);
     }
-    UnloadShader(Chunk::terrainShader);
 }
