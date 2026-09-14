@@ -140,12 +140,12 @@ int main() {
 
             // Movement
             float speed = 10.0f;
-            if (IsKeyDown(KEY_T)) { speed *= speed; } // Sprint
+            if (IsKeyDown(KEY_LEFT_SHIFT)) { speed *= 5.0f; } // Sprint
             if (IsKeyDown(KEY_A)) { movement.y -= speed*dt; } // Left
             if (IsKeyDown(KEY_D)) { movement.y += speed*dt; } // Right
             if (IsKeyDown(KEY_S)) { movement.x -= speed*dt; } // Backward
             if (IsKeyDown(KEY_W)) { movement.x += speed*dt; } // Forward
-            if (IsKeyDown(KEY_LEFT_SHIFT)) { movement.z -= speed*dt; } // Down
+            if (IsKeyDown(KEY_LEFT_CONTROL)) { movement.z -= speed*dt; } // Down
             if (IsKeyDown(KEY_SPACE)) { movement.z += speed*dt; } // Up
 
             // Orientation
@@ -206,7 +206,6 @@ int main() {
         SetShaderValue(mandelbrotShader, zoomLoc, &zoom, SHADER_UNIFORM_FLOAT);
 
         BeginMode3D(camera);
-        if (IsKeyDown(KEY_G)) { DrawGrid(100, 5); }
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
