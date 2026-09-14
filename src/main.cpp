@@ -94,6 +94,10 @@ int main() {
     Mesh mandelbrotPlaneMesh = GenMeshPlane(6, 4, 1, 1);
     Model mandelbrotPlaneModel = LoadModelFromMesh(mandelbrotPlaneMesh);
     mandelbrotPlaneModel.materials[0].shader = mandelbrotShader;
+    int offsetLoc = GetShaderLocation(mandelbrotShader, "offset");
+    int zoomLoc = GetShaderLocation(mandelbrotShader, "zoom");
+    Vector2 offset = {-0.6, 0.0};
+    float zoom = 2.0f;
 
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
@@ -150,6 +154,28 @@ int main() {
         float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
         SetShaderValue(lightingShader, lightingShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
         UpdateLightValues(lightingShader, light);
+
+        // Settings for Mandelbrot Set exploring
+        float baseSpeed = 1.0f;
+        float zoomSpeed = 2.5f * zoom;
+        float speed = (baseSpeed/zoom)*2.0f;
+        
+        // Makes everything slower
+        if (IsKeyDown(KEY_R)) { zoomSpeed *= 0.5; speed *= 0.5; }
+
+        // Moving
+        if (IsKeyDown(KEY_LEFT)) { offset.x -= speed*dt; }
+        if (IsKeyDown(KEY_RIGHT)) { offset.x += speed*dt; }
+
+        if (IsKeyDown(KEY_UP)) { offset.y -= speed*dt; }
+        if (IsKeyDown(KEY_DOWN)) { offset.y += speed*dt; }
+
+        // Panning
+        if (IsKeyDown(KEY_Q)) { zoom -= zoomSpeed*dt; }
+        if (IsKeyDown(KEY_E)) { zoom += zoomSpeed*dt; }
+
+        SetShaderValue(mandelbrotShader, offsetLoc, &offset, SHADER_UNIFORM_VEC2);
+        SetShaderValue(mandelbrotShader, zoomLoc, &zoom, SHADER_UNIFORM_FLOAT);
 
         BeginMode3D(camera);
         if (IsKeyDown(KEY_G)) { DrawGrid(100, 5); }

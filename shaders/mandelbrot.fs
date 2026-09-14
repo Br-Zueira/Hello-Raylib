@@ -8,17 +8,15 @@ out vec4 finalColor;
 
 #define PI 3.1415926535897932384626433832795
 #define MAX_ITERATIONS 50
-#define PLANE_WIDTH 6
-#define PLANE_HEIGHT 4
-#define SET_WIDTH 3
-#define SET_HEIGHT 2.5
-#define offset_x -0.6
-#define offset_y 0.0
+
+// Uniform variables
+uniform vec2 offset;
+uniform float zoom;
 
 void main() {
     // Vec2 serves as some version of "complex number (x is real, y is imaginary part)"
-    float cx = ((fragPosition.x / PLANE_WIDTH) * SET_WIDTH) + offset_x;
-    float cy = ((fragPosition.z / PLANE_HEIGHT) * SET_HEIGHT) + offset_y;
+    float cx = fragPosition.x/zoom + offset.x;
+    float cy = fragPosition.z/zoom + offset.y;
     vec2 mandelC = vec2(cx, cy);
     vec2 z = vec2(0.0, 0.0);
 
