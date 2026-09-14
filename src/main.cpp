@@ -106,9 +106,6 @@ int main() {
 
     // Project Loop
     while (!WindowShouldClose()) {
-        // Useful data for UI and 2D elements
-        vw = GetScreenWidth();
-        vy = GetScreenHeight();
 
         // Toggles cursor (Enter locks it and Esc unlocks it)
         if (IsKeyPressed(KEY_ESCAPE)) {
@@ -127,12 +124,43 @@ int main() {
             }
         }
 
+        // Useful data for UI and 2D elements
+        vw = GetScreenWidth();
+        vy = GetScreenHeight();
+
         // Delta time (useful for physics)
         float dt = GetFrameTime();
 
         // Updates camera rotation and position
         if (IsKeyPressed(KEY_C)) { updateCam = !updateCam; } // Toggles camera update on and off
-        if (updateCam) { UpdateCamera(&camera, CAMERA_FREE); }
+        if (updateCam) { 
+            // Parameters to update camera
+            Vector3 movement = {0};
+            Vector3 rotation = {0};
+
+            // Movement
+            float speed = 10.0f;
+            if (IsKeyDown(KEY_T)) { speed *= speed; } // Sprint
+            if (IsKeyDown(KEY_A)) { movement.y -= speed*dt; } // Left
+            if (IsKeyDown(KEY_D)) { movement.y += speed*dt; } // Right
+            if (IsKeyDown(KEY_S)) { movement.x -= speed*dt; } // Backward
+            if (IsKeyDown(KEY_W)) { movement.x += speed*dt; } // Forward
+            if (IsKeyDown(KEY_LEFT_SHIFT)) { movement.z -= speed*dt; } // Down
+            if (IsKeyDown(KEY_SPACE)) { movement.z += speed*dt; } // Up
+
+            // Orientation
+            float sensibility = 0.5f;
+            Vector2 mouseDelta = GetMouseDelta();
+            rotation.x = mouseDelta.x * sensibility;
+            rotation.y = mouseDelta.y * sensibility;
+
+            // Actually updating camera
+            UpdateCameraPro(&camera, 
+                movement,
+                rotation,
+                0.0f
+            ); 
+        }
 
         // Dynamic color based on sine waves
         unsigned char channel = 255*((sinf(GetTime())+1)/2);
