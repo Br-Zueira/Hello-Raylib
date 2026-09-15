@@ -99,6 +99,18 @@ int main() {
     Vector2 offset = {-0.6, 0.0};
     float zoom = 2.0f;
 
+    // Setting up SDF sphere
+    Shader raymarching = LoadShader("shaders/raymarching.vs", "shaders/raymarching.fs");
+    raymarching.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(raymarching, "viewPos");
+    int sphereSDFRadiusLoc = GetShaderLocation(raymarching, "radius");
+    int sphereBoxPosLoc = GetShaderLocation(raymarching, "spherePos");
+    float sphereSDFRadius = 5.0f;
+    float sphereBoxSize = sphereSDFRadius * 2 + 0.5;
+    Vector3 sphereBoxPos = {10.0f, 30.0f, 10.0f};
+    Mesh sphereBox = GenMeshCube(sphereBoxSize, sphereBoxSize, sphereBoxSize);
+    Model sphereSDF = LoadModelFromMesh(sphereBox);
+    sphereSDF.materials[0].shader = raymarching;
+
     // Useful to make a toggle option for updating camera
     bool updateCam = true;
 
@@ -205,12 +217,18 @@ int main() {
         SetShaderValue(mandelbrotShader, offsetLoc, &offset, SHADER_UNIFORM_VEC2);
         SetShaderValue(mandelbrotShader, zoomLoc, &zoom, SHADER_UNIFORM_FLOAT);
 
+        SetShaderValue(raymarching, raymarching.locs[SHADER_LOC_VECTOR_VIEW], &cameraPos, SHADER_UNIFORM_VEC3);
+        float sphereBoxPosFloat[3] = {sphereBoxPos.x, sphereBoxPos.y, sphereBoxPos.z};
+        SetShaderValue(raymarching, sphereBoxPosLoc, &sphereBoxPosFloat, SHADER_UNIFORM_VEC3);
+        SetShaderValue(raymarching, sphereSDFRadiusLoc, &sphereSDFRadius, SHADER_UNIFORM_FLOAT);
+
         BeginMode3D(camera);
         DrawTriangle3D(dot1, dot2, dot3, triangleColor);
         DrawModel(sphereModel, spherePos, 1.0f, WHITE);
         DrawModel(cubeModel, cubePos, 1.0f, WHITE);
         DrawModel(bustModel, bustPos, 10.0f, WHITE);
         DrawModelEx(mandelbrotPlaneModel, mandelbrotPlanePos, Vector3{1.0f, 0.0f, 0.0f}, 90.0f, Vector3{1.0f, 1.0f, 1.0f}, WHITE);
+        DrawModel(sphereSDF, sphereBoxPos, 1.0f, WHITE);
         Chunk::DrawChunks(cameraPos, light);
         DrawCylinderWires(cylinderPos, cylinderRadius, cylinderRadius, cylinderHeight, cylinderSlices, yellow);
         EndMode3D();
