@@ -8,6 +8,12 @@ uniform vec3 spherePos;
 
 out vec4 finalColor;
 
-void main() {
+function calcDist(vec3 pos1, vec3 pos2) 
+{
+    return 
+}
+
+void main() 
+{
     finalColor = vec4(1.0, 0.0, 1.0, 1.0);
 }
