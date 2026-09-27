@@ -3,7 +3,7 @@ srcdir = src
 target = ${srcdir}/main.cpp ${srcdir}/terrain.cpp
 outdir = build
 output = bin
-dependencies = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+dependencies = -lraylib -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -lGL -lm -lpthread -ldl -lrt
 
 ${output}: ${target}
 	gtags
