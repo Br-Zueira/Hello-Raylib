@@ -6,7 +6,6 @@ output = bin
 dependencies = -lraylib -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon -lGL -lm -lpthread -ldl -lrt
 
 ${output}: ${target}
-	gtags
 	mkdir -p ${outdir}
 	${compiler} ${target} -o ${outdir}/${output} ${dependencies}
 
