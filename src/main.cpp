@@ -161,7 +161,7 @@ int main() {
             if (IsKeyDown(KEY_SPACE)) { movement.z += speed*dt; } // Up
 
             // Orientation
-            float sensibility = 0.5f;
+            float sensibility = 0.1f;
             Vector2 mouseDelta = GetMouseDelta();
             rotation.x = mouseDelta.x * sensibility;
             rotation.y = mouseDelta.y * sensibility;
